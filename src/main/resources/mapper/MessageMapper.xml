@@ -4,8 +4,22 @@
 <mapper namespace="com.zjq.chatbot.mapper.MessageMapper">
 
     <insert id="insert">
-        insert into sessions()
+        insert into message(session_id, content, meta_json)
+        VALUES (#(sessionId), #(content), #(metaJson))
     </insert>
+
+    <select id="getById" resultType="com.zjq.chatbot.entity.MessageEntity">
+        SELECT id, session_id, role, content, meta_json, created_at
+        FROM messages
+        WHERE id = #(id)
+    </select>
+
+    <select id="listBySessionId" parameterType="long" resultType="com.zjq.chatbot.entity.MessageEntity">
+        SELECT id, session_id, role, content, meta_json, created_at
+        FROM messages
+        WHERE session_id = #{sessionId}
+        ORDER BY id ASC
+    </select>
 
 
 </mapper>

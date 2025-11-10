@@ -9,9 +9,11 @@ import java.time.LocalDateTime;
 @Builder
 public class SessionEntity {
     /** id BIGINT PRIMARY KEY AUTO_INCREMENT */
+    //会话唯一id
     private Long id;
 
     /** anon_id CHAR(36) NOT NULL */
+    //匿名用户id UUID
     private String anonId;
 
     /** title VARCHAR(200) */
