@@ -46,6 +46,8 @@ public class ChatController {
         String cid = (req.chatId()==null || req.chatId().isBlank()) ? java.util.UUID.randomUUID().toString() : req.chatId();
         MessageEntity message = MessageEntity.builder()
                 .content(req.message())
+                .sessionId(12L)
+                .role(MessageEntity.Role.user)
                 .createdAt(LocalDateTime.now())
                 .build();
         chatService.insert(message);

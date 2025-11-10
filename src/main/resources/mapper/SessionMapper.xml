@@ -3,8 +3,13 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.zjq.chatbot.mapper.SessionMapper">
 
-    <insert id="insert">
-            insert into sessions()
+    <insert id="insert"
+            parameterType="com.zjq.chatbot.entity.SessionEntity"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sessions
+            (anon_id, title, channel)
+        VALUES
+            (#{anonId}, #{title}, #{channel})
     </insert>
 
 

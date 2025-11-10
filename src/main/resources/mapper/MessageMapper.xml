@@ -3,15 +3,16 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.zjq.chatbot.mapper.MessageMapper">
 
-    <insert id="insert">
-        insert into message(session_id, content, meta_json)
-        VALUES (#(sessionId), #(content), #(metaJson))
+    <insert id="insert" parameterType="com.zjq.chatbot.entity.MessageEntity"
+            useGeneratedKeys="true" keyProperty="id">
+        insert into messages(session_id, role, content, meta_json)
+        VALUES (#{sessionId}, #{role}, #{content}, #{metaJson})
     </insert>
 
     <select id="getById" resultType="com.zjq.chatbot.entity.MessageEntity">
         SELECT id, session_id, role, content, meta_json, created_at
         FROM messages
-        WHERE id = #(id)
+        WHERE id = #{id}
     </select>
 
     <select id="listBySessionId" parameterType="long" resultType="com.zjq.chatbot.entity.MessageEntity">
