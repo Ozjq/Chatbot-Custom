@@ -24,34 +24,48 @@ public class ChatController {
     @Resource
     private ChatService chatService;
 
+    @Resource
     private SessionService sessionService;
 
     public ChatController(Chatbot chatbot) {
         this.chatbot = chatbot;
     }
 
-    public record ChatReq(String chatId, String message) {}
-    public record ChatResp(String chatId, String answer) {}
+    public record ChatReq(String message, Long sessionId) {}
+    public record ChatResp(String answer, Long sessionId) {}
 
-    @PostMapping("/v1")
-    public ChatResp send(@RequestBody ChatReq req) {
-        // 首次没有 chatId 就给个新的（先用随机UUID；以后换成持久化sessionId）
-        String cid = (req.chatId()==null || req.chatId().isBlank()) ? java.util.UUID.randomUUID().toString() : req.chatId();
-        String answer = chatbot.doChat(req.message(), cid);
-        return new ChatResp(cid, answer);
-    }
+//    @PostMapping("/v1")
+//    public ChatResp send(@RequestBody ChatReq req) {
+//        // 首次没有 chatId 就给个新的（先用随机UUID；以后换成持久化sessionId）
+//        String cid = (req.chatId()==null || req.chatId().isBlank()) ? java.util.UUID.randomUUID().toString() : req.chatId();
+//        String answer = chatbot.doChat(req.message(), cid);
+//        return new ChatResp(cid, answer);
+//    }
 
     @PostMapping("/v2")
-    public void sendV2(@RequestBody ChatReq req){
-        String cid = (req.chatId()==null || req.chatId().isBlank()) ? java.util.UUID.randomUUID().toString() : req.chatId();
+    public ChatResp sendV2(@RequestBody ChatReq req){
+        Long sid = (req.sessionId() == null) ? sessionService.create() : req.sessionId();
+
+        // 发送请求给 bot,插入数据库
         MessageEntity message = MessageEntity.builder()
                 .content(req.message())
-                .sessionId(12L)
+                .sessionId(sid)
                 .role(MessageEntity.Role.user)
                 .createdAt(LocalDateTime.now())
                 .build();
         chatService.insert(message);
+        // bot返回响应
+        String answer = chatbot.doChat(req.message(), String.valueOf(sid));
 
+        return new ChatResp(answer,sid);
     }
 
+    /**
+     * 可选：显式创建会话（前端也可以先调用这个拿到 sessionId 再发消息）
+     * POST /api/chat/v2/sessions
+     */
+    @PostMapping("/sessions")
+    public Long createSession() {
+        return sessionService.create();
+    }
 }

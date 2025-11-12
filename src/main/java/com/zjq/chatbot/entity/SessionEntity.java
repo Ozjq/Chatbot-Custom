@@ -13,7 +13,7 @@ public class SessionEntity {
     private Long id;
 
     /** anon_id CHAR(36) NOT NULL */
-    //匿名用户id UUID
+    //匿名用户id UUID转String
     private String anonId;
 
     /** title VARCHAR(200) */
