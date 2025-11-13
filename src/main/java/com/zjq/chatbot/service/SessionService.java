@@ -6,6 +6,7 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class SessionService {
@@ -15,6 +16,11 @@ public class SessionService {
 
     public int insert(SessionEntity session){
         return sessionMapper.insert(session);
+    }
+
+    /** 近期会话列表（可用于首页“最近聊天”） */
+    public List<SessionEntity> listRecent(int limit){
+        return sessionMapper.listRecent(limit);
     }
 
     /**

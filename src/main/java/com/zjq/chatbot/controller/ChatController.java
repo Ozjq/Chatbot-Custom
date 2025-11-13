@@ -2,6 +2,7 @@ package com.zjq.chatbot.controller;
 
 import com.zjq.chatbot.app.Chatbot;
 import com.zjq.chatbot.entity.MessageEntity;
+import com.zjq.chatbot.entity.SessionEntity;
 import com.zjq.chatbot.service.ChatService;
 import com.zjq.chatbot.service.SessionService;
 import jakarta.annotation.Resource;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 聊天界面相关接口
@@ -42,8 +44,13 @@ public class ChatController {
 //        return new ChatResp(cid, answer);
 //    }
 
+    @PostMapping("/init")
+    public List<SessionEntity> init() {
+        return sessionService.listRecent(10);
+    }
+
     @PostMapping("/v2")
-    public ChatResp sendV2(@RequestBody ChatReq req){
+    public ChatResp sendV2(@RequestBody ChatReq req) {
         Long sid = (req.sessionId() == null) ? sessionService.create() : req.sessionId();
 
         // 发送请求给 bot,插入数据库
