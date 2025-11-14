@@ -2,6 +2,7 @@ package com.zjq.chatbot.mapper;
 
 import com.zjq.chatbot.entity.MessageEntity;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -16,5 +17,5 @@ public interface MessageMapper {
 
     MessageEntity getById(Long id);
 
-    List<MessageEntity> listBySessionId(Long sessionId);
+    List<MessageEntity> listBySessionId(@Param("sessionId") Long sessionId);
 }

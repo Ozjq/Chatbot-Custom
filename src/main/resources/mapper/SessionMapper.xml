@@ -9,6 +9,13 @@
         VALUES
             (#{id}, #{anonId}, #{title}, #{channel})
     </insert>
+    <update id="bumpStats">
+        UPDATE sessions
+        SET message_count = COALESCE(message_count,0) + 1,
+            last_message_at = #{ts},
+            updated_at = #{ts}
+        WHERE id = #{id}
+    </update>
 
     <select id="getById" resultType="com.zjq.chatbot.entity.SessionEntity">
         SELECT id, anon_id, title, channel, message_count, last_message_at, created_at, updated_at

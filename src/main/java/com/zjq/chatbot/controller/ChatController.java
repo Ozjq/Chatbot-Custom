@@ -6,12 +6,11 @@ import com.zjq.chatbot.entity.SessionEntity;
 import com.zjq.chatbot.service.ChatService;
 import com.zjq.chatbot.service.SessionService;
 import jakarta.annotation.Resource;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -44,7 +43,7 @@ public class ChatController {
 //        return new ChatResp(cid, answer);
 //    }
 
-    @PostMapping("/init")
+    @GetMapping("/init")
     public List<SessionEntity> init() {
         return sessionService.listRecent(10);
     }
@@ -53,7 +52,7 @@ public class ChatController {
     public ChatResp sendV2(@RequestBody ChatReq req) {
         Long sid = (req.sessionId() == null) ? sessionService.create() : req.sessionId();
 
-        // 发送请求给 bot,插入数据库
+        // 1 发送请求给 bot,插入数据库
         MessageEntity message = MessageEntity.builder()
                 .content(req.message())
                 .sessionId(sid)
@@ -61,10 +60,37 @@ public class ChatController {
                 .createdAt(LocalDateTime.now())
                 .build();
         chatService.insert(message);
-        // bot返回响应
+        sessionService.messageAppend(sid);
+
+        // 2 bot返回响应
         String answer = chatbot.doChat(req.message(), String.valueOf(sid));
 
+        //3 写入system返回消息
+        chatService.insert(MessageEntity.builder()
+                .sessionId(sid)
+                .role(MessageEntity.Role.system)
+                .content(answer)
+                .metaJson(null)
+                .createdAt(LocalDateTime.now())
+                .build());
+        sessionService.messageAppend(sid);
+
         return new ChatResp(answer,sid);
+    }
+
+    /**
+     * 要么用路径变量：@GetMapping("/messages/{sessionId}") + @PathVariable Long sessionId，请求 /messages/3
+     * 要么用查询参数：@GetMapping("/messages") + @RequestParam Long sessionId，请求 /messages?sessionId=3
+     * 二选一不要混用
+     * @param sessionId
+     * @return
+     */
+    @GetMapping("/messages")
+    public List<MessageEntity> getMessagesBySid(@RequestParam("sessionId") Long sessionId) {
+        if (sessionId == null) {
+            return Collections.emptyList();
+        }
+        return chatService.getMessagesBySid(sessionId);
     }
 
     /**

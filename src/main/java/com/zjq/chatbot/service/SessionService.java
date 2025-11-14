@@ -19,9 +19,18 @@ public class SessionService {
     }
 
     /** 近期会话列表（可用于首页“最近聊天”） */
-    public List<SessionEntity> listRecent(int limit){
+    public List<SessionEntity> listRecent(int limit) {
         return sessionMapper.listRecent(limit);
     }
+
+    /**
+     * 更新会话最后一次对话时间
+     * @param sessionId
+     */
+    public void messageAppend(Long sessionId) {
+        sessionMapper.bumpStats(sessionId, LocalDateTime.now());
+    }
+
 
     /**
      * 显式创建一个新会话（用于首次 /messages 无 sessionId 的情况）
