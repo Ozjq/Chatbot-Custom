@@ -72,6 +72,12 @@
 			<artifactId>spring-ai-alibaba-starter</artifactId>
 			<version>1.0.0-M6.1</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.springframework.ai/spring-ai-markdown-document-reader -->
+		<dependency>
+			<groupId>org.springframework.ai</groupId>
+			<artifactId>spring-ai-markdown-document-reader</artifactId>
+			<version>1.0.0-M6</version>
+		</dependency>
 		<!-- Ollama依赖		-->
 		<dependency>
 			<groupId>org.springframework.ai</groupId>
@@ -96,6 +102,13 @@
 			<artifactId>mysql-connector-j</artifactId>
 			<version>9.1.0</version>
 		</dependency>
+		<!-- kryo序列化库 -->
+		<dependency>
+			<groupId>com.esotericsoftware</groupId>
+			<artifactId>kryo</artifactId>
+			<version>5.6.2</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

@@ -48,6 +48,36 @@ public class ChatController {
         return sessionService.listRecent(10);
     }
 
+    @PostMapping("/v1")
+    public ChatResp ragChat(@RequestBody ChatReq req) {
+        Long sid = (req.sessionId() == null) ? sessionService.create() : req.sessionId();
+
+        // 1 发送请求给 bot,插入数据库
+        MessageEntity message = MessageEntity.builder()
+                .content(req.message())
+                .sessionId(sid)
+                .role(MessageEntity.Role.user)
+                .createdAt(LocalDateTime.now())
+                .build();
+        chatService.insert(message);
+        sessionService.messageAppend(sid);
+
+        // 2 bot返回响应
+        String answer = chatbot.chatWithRag(req.message(), String.valueOf(sid));
+
+        //3 写入system返回消息
+        chatService.insert(MessageEntity.builder()
+                .sessionId(sid)
+                .role(MessageEntity.Role.system)
+                .content(answer)
+                .metaJson(null)
+                .createdAt(LocalDateTime.now())
+                .build());
+        sessionService.messageAppend(sid);
+
+        return new ChatResp(answer,sid);
+    }
+
     @PostMapping("/v2")
     public ChatResp sendV2(@RequestBody ChatReq req) {
         Long sid = (req.sessionId() == null) ? sessionService.create() : req.sessionId();
@@ -78,7 +108,7 @@ public class ChatController {
         return new ChatResp(answer,sid);
     }
 
-    /**
+    /** 查询某会话下的所有消息
      * 要么用路径变量：@GetMapping("/messages/{sessionId}") + @PathVariable Long sessionId，请求 /messages/3
      * 要么用查询参数：@GetMapping("/messages") + @RequestParam Long sessionId，请求 /messages?sessionId=3
      * 二选一不要混用
