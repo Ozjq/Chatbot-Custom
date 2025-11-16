@@ -108,7 +108,12 @@
 			<artifactId>kryo</artifactId>
 			<version>5.6.2</version>
 		</dependency>
-
+		<!-- pdf Reader依赖-->
+		<dependency>
+			<groupId>org.springframework.ai</groupId>
+			<artifactId>spring-ai-pdf-document-reader</artifactId>
+			<version>1.1.0-M3</version>
+		</dependency>
 	</dependencies>
 
 	<build>
