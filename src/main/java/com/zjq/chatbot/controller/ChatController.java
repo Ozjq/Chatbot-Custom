@@ -1,6 +1,7 @@
 package com.zjq.chatbot.controller;
 
 import com.zjq.chatbot.app.Chatbot;
+import com.zjq.chatbot.entity.ChatMessageDTO;
 import com.zjq.chatbot.entity.MessageEntity;
 import com.zjq.chatbot.entity.SessionEntity;
 import com.zjq.chatbot.service.ChatService;
@@ -116,7 +117,7 @@ public class ChatController {
      * @return
      */
     @GetMapping("/messages")
-    public List<MessageEntity> getMessagesBySid(@RequestParam("sessionId") Long sessionId) {
+    public List<ChatMessageDTO> getMessagesBySid(@RequestParam("sessionId") Long sessionId) {
         if (sessionId == null) {
             return Collections.emptyList();
         }

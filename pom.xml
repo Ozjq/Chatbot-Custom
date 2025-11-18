@@ -102,6 +102,12 @@
 			<artifactId>mysql-connector-j</artifactId>
 			<version>9.1.0</version>
 		</dependency>
+		<!--redis依赖-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+			<version>3.5.6</version>
+		</dependency>
 		<!-- kryo序列化库 -->
 		<dependency>
 			<groupId>com.esotericsoftware</groupId>

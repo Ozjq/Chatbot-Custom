@@ -24,15 +24,16 @@ public class SimpleVectorStoreConfig {
     @Bean
     VectorStore simpleVectorStore(EmbeddingModel dashscopeEmbeddingModel) {
         SimpleVectorStore simpleVectorStore = SimpleVectorStore.builder(dashscopeEmbeddingModel).build();
+
         //抽取 Extract
         List<Document> documentList = documentLoader.loadMarkDowns();
+
         //转换 Transform
-        List<Document> splitDocuments = splitter.splitDocuments(documentList);
-        List<Document> enrichDocuments = myEnricher.enrichDocumentsByKeyword(splitDocuments);
-
-        //加载 Load
-        simpleVectorStore.write(enrichDocuments);
-
+//        List<Document> splitDocuments = splitter.splitDocuments(documentList);
+//        List<Document> enrichDocuments = myEnricher.enrichDocumentsByKeyword(splitDocuments);
+//
+//        //加载 Load
+//        simpleVectorStore.write(enrichDocuments);
         simpleVectorStore.add(documentList);
         return simpleVectorStore;
     }
