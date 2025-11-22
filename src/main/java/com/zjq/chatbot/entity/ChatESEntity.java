@@ -6,23 +6,23 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Data
 @Document(indexName = "chat_conversation")
-public class ChatESConversation {
+public class ChatESEntity {
 
     @Id
-    private String sessionId;
+    private Long sessionId;
 
 //    @Field(type = FieldType.Keyword)
 //    private String userId;
 
     @Field(type = FieldType.Date)
-    private Instant startTime;
+    private LocalDateTime startTime;
 
     @Field(type = FieldType.Date)
-    private Instant endTime;
+    private LocalDateTime endTime;
 
     @Field(type = FieldType.Keyword)
     private String status;

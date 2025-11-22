@@ -112,7 +112,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-elasticsearch</artifactId>
-			<version>3.5.6</version>
 		</dependency>
 		<!-- kryo序列化库 -->
 		<dependency>

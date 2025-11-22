@@ -14,6 +14,10 @@ public class SessionService {
     @Resource
     private SessionMapper sessionMapper;
 
+    public SessionEntity getSessionById(Long sessionId) {
+        return sessionMapper.getById(sessionId);
+    }
+
     public int insert(SessionEntity session){
         return sessionMapper.insert(session);
     }

@@ -22,7 +22,8 @@ spring:
       port: 6379
       database: 1
       password: ${chat.redis.password}
-
+  elasticsearch:
+    uris: ${spring.elasticsearch.uris}
 
 server:
   port: 8123

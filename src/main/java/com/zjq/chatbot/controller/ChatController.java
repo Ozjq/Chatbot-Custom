@@ -4,6 +4,7 @@ import com.zjq.chatbot.app.Chatbot;
 import com.zjq.chatbot.entity.ChatMessageDTO;
 import com.zjq.chatbot.entity.MessageEntity;
 import com.zjq.chatbot.entity.SessionEntity;
+import com.zjq.chatbot.service.ChatSearchService;
 import com.zjq.chatbot.service.ChatService;
 import com.zjq.chatbot.service.SessionService;
 import jakarta.annotation.Resource;
@@ -25,9 +26,10 @@ public class ChatController {
 
     @Resource
     private ChatService chatService;
-
     @Resource
     private SessionService sessionService;
+    @Resource
+    private ChatSearchService chatSearchService;
 
     public ChatController(Chatbot chatbot) {
         this.chatbot = chatbot;
@@ -76,6 +78,12 @@ public class ChatController {
                 .build());
         sessionService.messageAppend(sid);
 
+        try {
+            chatSearchService.indexSession(sid);
+        } catch (Exception e) {
+            System.out.println("index ES failed");
+        }
+
         return new ChatResp(answer,sid);
     }
 
@@ -105,6 +113,12 @@ public class ChatController {
                 .createdAt(LocalDateTime.now())
                 .build());
         sessionService.messageAppend(sid);
+
+        try {
+            chatSearchService.indexSession(sid);
+        } catch (Exception e) {
+            System.out.println("index ES failed");
+        }
 
         return new ChatResp(answer,sid);
     }
