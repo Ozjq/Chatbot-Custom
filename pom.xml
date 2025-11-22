@@ -108,6 +108,12 @@
 			<artifactId>spring-boot-starter-data-redis</artifactId>
 			<version>3.5.6</version>
 		</dependency>
+		<!--ElasticSearch依赖-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+			<version>3.5.6</version>
+		</dependency>
 		<!-- kryo序列化库 -->
 		<dependency>
 			<groupId>com.esotericsoftware</groupId>
