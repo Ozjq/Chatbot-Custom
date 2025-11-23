@@ -6,6 +6,7 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -19,10 +20,10 @@ public class ChatESEntity {
 //    private String userId;
 
     @Field(type = FieldType.Date)
-    private LocalDateTime startTime;
+    private LocalDate startTime;
 
     @Field(type = FieldType.Date)
-    private LocalDateTime endTime;
+    private LocalDate endTime;
 
     @Field(type = FieldType.Keyword)
     private String status;
@@ -31,7 +32,9 @@ public class ChatESEntity {
     private String channel;
 
     // 这里的 analyzer 名称要和你 ES 里的 mapping 对上
-    //@Field(type = FieldType.Text, analyzer = "ik_max_word", searchAnalyzer = "ik_smart")
-    @Field(type = FieldType.Text)
+    //@Field(type = FieldType.Text)
+    @Field(type = FieldType.Text, analyzer = "standard", searchAnalyzer = "standard")
     private String fullText;
+
+
 }

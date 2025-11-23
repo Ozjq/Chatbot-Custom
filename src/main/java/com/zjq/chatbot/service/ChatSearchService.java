@@ -9,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -24,7 +26,7 @@ public class ChatSearchService {
 
     public Page<ChatESEntity> searchConversations(String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return esRepository.findByFullTextContaining(keyword, pageable);
+        return esRepository.searchByFullText(keyword, pageable);
     }
 
     public void indexSession(Long sessionId) {
@@ -45,8 +47,8 @@ public class ChatSearchService {
 
         ChatESEntity conversation = new ChatESEntity();
         conversation.setSessionId(sessionId);
-        conversation.setStartTime(start);
-        conversation.setEndTime(end);
+        conversation.setStartTime(LocalDate.from(start));
+        conversation.setEndTime(LocalDate.from(end));
         conversation.setFullText(sb.toString());
 
         esRepository.save(conversation);
