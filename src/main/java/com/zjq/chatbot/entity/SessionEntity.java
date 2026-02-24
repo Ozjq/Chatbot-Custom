@@ -33,4 +33,7 @@ public class SessionEntity {
 
     /** updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP */
     private LocalDateTime updatedAt;
+
+    //用户id
+    private Long userId;
 }

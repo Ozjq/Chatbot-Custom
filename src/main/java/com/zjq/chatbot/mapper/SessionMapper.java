@@ -15,5 +15,7 @@ public interface SessionMapper {
 
     List<SessionEntity> listRecent(@Param("limit") int limit);
 
+    List<SessionEntity> listRecentByUserId(@Param("userId") Long userId, @Param("limit") int limit);
+
     int bumpStats(@Param("id") Long id, @Param("ts") LocalDateTime ts);
 }

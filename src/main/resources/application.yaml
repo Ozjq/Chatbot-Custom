@@ -25,6 +25,10 @@ spring:
   elasticsearch:
     uris: ${spring.elasticsearch.uris}
 
+jwt:
+  secret: ${chat.jwt.secret}
+  expire: ${chat.jwt.expire}
+
 server:
   port: 8123
   servlet:

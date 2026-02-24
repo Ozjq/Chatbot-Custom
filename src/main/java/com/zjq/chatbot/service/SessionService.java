@@ -1,5 +1,6 @@
 package com.zjq.chatbot.service;
 
+import com.zjq.chatbot.config.UserContext;
 import com.zjq.chatbot.entity.SessionEntity;
 import com.zjq.chatbot.mapper.SessionMapper;
 import jakarta.annotation.Resource;
@@ -24,6 +25,12 @@ public class SessionService {
 
     /** 近期会话列表（可用于首页“最近聊天”） */
     public List<SessionEntity> listRecent(int limit) {
+        Long userId = UserContext.getUserId();
+        // 如果用户已登录，只查询该用户的会话
+        if (userId != null) {
+            return sessionMapper.listRecentByUserId(userId, limit);
+        }
+        // 如果未登录，返回空列表或者匿名会话（取决于业务需求）
         return sessionMapper.listRecent(limit);
     }
 
@@ -41,8 +48,11 @@ public class SessionService {
      * 返回 DB 生成的 sessionId
      */
     public Long create() {
+        Long userId = UserContext.getUserId();
+        
         SessionEntity toCreate = SessionEntity.builder()
-                .anonId(java.util.UUID.randomUUID().toString()) // 如果表的 anon_id 可为空就留空；若不可为空，给个 UUID 用于内部追踪
+                .userId(userId) // 关联当前登录用户
+                .anonId(java.util.UUID.randomUUID().toString())
                 .title("新的会话")
                 .channel("web")
                 .messageCount(0)

@@ -5,9 +5,9 @@
 
     <insert id="insert" parameterType="com.zjq.chatbot.entity.SessionEntity" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO sessions
-            (id, anon_id, title, channel)
+            (id, anon_id, title, channel, user_id, created_at, updated_at)
         VALUES
-            (#{id}, #{anonId}, #{title}, #{channel})
+            (#{id}, #{anonId}, #{title}, #{channel}, #{userId}, #{createdAt}, #{updatedAt})
     </insert>
     <update id="bumpStats">
         UPDATE sessions
@@ -18,16 +18,23 @@
     </update>
 
     <select id="getById" resultType="com.zjq.chatbot.entity.SessionEntity">
-        SELECT id, anon_id, title, channel, message_count, last_message_at, created_at, updated_at
+        SELECT id, anon_id, title, channel, message_count, last_message_at, created_at, updated_at, user_id
         FROM sessions
         WHERE id = #{id}
     </select>
     <select id="listRecent" resultType="com.zjq.chatbot.entity.SessionEntity">
-        SELECT id, anon_id, title, channel, message_count, last_message_at, created_at, updated_at
+        SELECT id, anon_id, title, channel, message_count, last_message_at, created_at, updated_at, user_id
         FROM sessions
         ORDER BY last_message_at DESC, created_at DESC
         LIMIT #{limit}
     </select>
 
+    <select id="listRecentByUserId" resultType="com.zjq.chatbot.entity.SessionEntity">
+        SELECT id, anon_id, title, channel, message_count, last_message_at, created_at, updated_at, user_id
+        FROM sessions
+        WHERE user_id = #{userId}
+        ORDER BY last_message_at DESC, created_at DESC
+        LIMIT #{limit}
+    </select>
 
 </mapper>
