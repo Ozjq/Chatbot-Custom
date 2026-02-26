@@ -28,6 +28,7 @@ spring:
 jwt:
   secret: ${chat.jwt.secret}
   expire: ${chat.jwt.expire}
+  enabled: false
 
 server:
   port: 8123

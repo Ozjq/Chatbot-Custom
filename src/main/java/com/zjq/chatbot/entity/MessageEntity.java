@@ -31,6 +31,8 @@ public class MessageEntity {
     //消息写入时间
     private LocalDateTime createdAt;
 
+    private Long userId;
+
     /** 角色枚举，与表结构保持一致 */
     public enum Role {
         user, assistant, system, tool

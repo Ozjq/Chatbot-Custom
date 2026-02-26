@@ -39,20 +39,23 @@ public class JwtUtil {
 
     /**
      * 解析 Token 获取 userId
-     * 如果 Token 无效或过期，会抛出异常
      */
     public Long parseUserId(String token) {
-        JWTSigner signer = JWTSignerUtil.hs256(jwtProperties.getSecret().getBytes());
         JWT jwt = JWTUtil.parseToken(token);
 
-        // 1. 验证签名
-        if (!jwt.verify(signer)) {
-            throw new RuntimeException("Token 签名无效");
-        }
+        // 如果开启了校验，则进行签名和过期检查
+        if (jwtProperties.isEnabled()) {
+            JWTSigner signer = JWTSignerUtil.hs256(jwtProperties.getSecret().getBytes());
+            
+            // 1. 验证签名
+            if (!jwt.verify(signer)) {
+                throw new RuntimeException("Token 签名无效");
+            }
 
-        // 2. 验证是否过期
-        if (!jwt.validate(0)) { // 0 表示容忍时间差
-            throw new RuntimeException("Token 已过期");
+            // 2. 验证是否过期
+            if (!jwt.validate(0)) { // 0 表示容忍时间差
+                throw new RuntimeException("Token 已过期");
+            }
         }
 
         // 3. 提取 userId

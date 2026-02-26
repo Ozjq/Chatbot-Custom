@@ -1,6 +1,7 @@
 package com.zjq.chatbot.controller;
 
 import com.zjq.chatbot.app.Chatbot;
+import com.zjq.chatbot.config.UserContext;
 import com.zjq.chatbot.entity.ChatMessageDTO;
 import com.zjq.chatbot.entity.MessageEntity;
 import com.zjq.chatbot.entity.SessionEntity;
