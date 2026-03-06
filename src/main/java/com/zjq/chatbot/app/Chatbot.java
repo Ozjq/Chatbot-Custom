@@ -26,6 +26,18 @@ public class Chatbot {
     private final ChatClient chatClient;
     private static final String SYSTEM_PROMPT = "扮演智能客服机器人，回答用户问题";
 
+    private static final String REACT_PROMPT_TEMPLATE = """
+            你是一个严谨的任务执行助手。请按以下规则工作：
+            1) 如果问题仅靠常识可直接回答，则直接给出最终答案。
+            2) 如果问题需要外部信息或文件处理，请优先调用工具获取事实，再作答。
+            3) 每次调用工具后先阅读工具返回结果，再决定是否继续调用工具。
+            4) 最多进行 3 轮工具调用；若仍无法完成，明确说明限制并给出可执行建议。
+            5) 输出给用户时只给“最终答案”，不要暴露中间推理过程。
+
+            用户问题：
+            %s
+            """;
+
     public Chatbot(@Qualifier("dashscopeChatModel") ChatModel dashScopeChatModel) {
         //基于内存对话记忆
         ChatMemory chatMemory = new InMemoryChatMemory();
@@ -70,5 +82,17 @@ public class Chatbot {
     @Resource
     private ToolCallback[] allTools;
 
+    public String reactChat(String message, String sessionId) {
+        String reactPrompt = REACT_PROMPT_TEMPLATE.formatted(message);
+        ChatResponse response = chatClient.prompt()
+                .user(reactPrompt)
+                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, sessionId)
+                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                .advisors(new QuestionAnswerAdvisor(simpleVectorStore))
+                .tools(allTools)
+                .call()
+                .chatResponse();
+        return response.getResult().getOutput().getText();
+    }
 
 }

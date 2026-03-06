@@ -124,6 +124,40 @@ public class ChatController {
         return new ChatResp(answer,sid);
     }
 
+    @PostMapping("/reactChat")
+    public ChatResp reactChat(@RequestBody ChatReq req) {
+        Long sid = (req.sessionId() == null) ? sessionService.create() : req.sessionId();
+
+        MessageEntity message = MessageEntity.builder()
+                .content(req.message())
+                .sessionId(sid)
+                .role(MessageEntity.Role.user)
+                .createdAt(LocalDateTime.now())
+                .build();
+        chatService.insert(message);
+        sessionService.messageAppend(sid);
+
+        String answer = chatbot.reactChat(req.message(), String.valueOf(sid));
+
+        chatService.insert(MessageEntity.builder()
+                .sessionId(sid)
+                .role(MessageEntity.Role.system)
+                .content(answer)
+                .metaJson(null)
+                .createdAt(LocalDateTime.now())
+                .build());
+        sessionService.messageAppend(sid);
+
+        try {
+            chatSearchService.indexSession(sid);
+        } catch (Exception e) {
+            System.out.println("index ES failed");
+        }
+
+        return new ChatResp(answer, sid);
+    }
+
+
     /** 查询某会话下的所有消息
      * 要么用路径变量：@GetMapping("/messages/{sessionId}") + @PathVariable Long sessionId，请求 /messages/3
      * 要么用查询参数：@GetMapping("/messages") + @RequestParam Long sessionId，请求 /messages?sessionId=3
