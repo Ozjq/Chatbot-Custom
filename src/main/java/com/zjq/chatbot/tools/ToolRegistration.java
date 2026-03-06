@@ -11,7 +11,12 @@ public class ToolRegistration {
     @Bean
     public ToolCallback[] allTools() {
         PDFGenerationTool pdfGenerationTool = new PDFGenerationTool();
+        FileOperationTool fileOperationTool = new FileOperationTool();
+        ResourceDownloadTool resourceDownloadTool = new ResourceDownloadTool();
 
-        return ToolCallbacks.from(pdfGenerationTool);
+        return ToolCallbacks.from(
+                pdfGenerationTool,
+                fileOperationTool,
+                resourceDownloadTool);
     }
 }
