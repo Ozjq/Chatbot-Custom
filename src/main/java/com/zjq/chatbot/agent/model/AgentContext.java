@@ -40,7 +40,7 @@ public class AgentContext {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     /**
-     * ===== 新增状态字段 =====
+     * ===== 状态字段 =====
      */
     @Builder.Default
     private boolean needPdf = false;
@@ -50,6 +50,14 @@ public class AgentContext {
 
     @Builder.Default
     private boolean pdfReady = false;
+
+    // 新增：是否已经尝试过PDF生成
+    @Builder.Default
+    private boolean pdfTried = false;
+
+    // 新增：PDF是否失败（失败熔断）
+    @Builder.Default
+    private boolean pdfFailed = false;
 
     /**
      * 第一阶段生成的正文答案

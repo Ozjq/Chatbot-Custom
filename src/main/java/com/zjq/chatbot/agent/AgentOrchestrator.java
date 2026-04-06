@@ -39,7 +39,11 @@ public class AgentOrchestrator {
 
             AgentObservation observation = actionExecutor.execute(action, context);
             context.addObservation(observation);
-            log.info("Agent observation: {}", observation);
+            log.info("Agent observation: success={}, source={}, summary={}, err={}",
+                    observation.isSuccess(),
+                    observation.getSource(),
+                    observation.getSummary(),
+                    observation.getErrorMessage());
 
             if (observation.isSuccess()) {
                 switch (action.getType()) {
@@ -50,10 +54,13 @@ public class AgentOrchestrator {
                         }
                     }
                     case CALL_TOOL -> {
-                        if ("pdfGenerationTool".equals(action.getToolName())
-                                && StringUtils.hasText(observation.getContent())) {
-                            context.setPdfResult(observation.getContent());
-                            context.setPdfReady(true);
+                        if ("pdfGenerationTool".equals(action.getToolName())) {
+                            context.setPdfTried(true);
+                            context.setPdfFailed(false);
+                            if (StringUtils.hasText(observation.getContent())) {
+                                context.setPdfResult(observation.getContent());
+                                context.setPdfReady(true);
+                            }
                         }
                     }
                     default -> {
@@ -61,6 +68,14 @@ public class AgentOrchestrator {
                 }
             } else {
                 log.warn("Agent step failed: {}", observation.getErrorMessage());
+
+                // PDF 工具失败 -> 熔断，不再重复重试
+                if (action.getType() == AgentAction.ActionType.CALL_TOOL
+                        && "pdfGenerationTool".equals(action.getToolName())) {
+                    context.setPdfTried(true);
+                    context.setPdfFailed(true);
+                    context.setFinished(true);
+                }
             }
 
             // 只有答案完成，并且不需要 PDF 或 PDF 已完成，才能结束
@@ -80,6 +95,9 @@ public class AgentOrchestrator {
                 if (context.isPdfReady()) {
                     context.setFinalAnswer(context.getAnswerDraft() +
                             "\n\nPDF已生成：" + context.getPdfResult());
+                } else if (context.isPdfFailed()) {
+                    context.setFinalAnswer(context.getAnswerDraft() +
+                            "\n\nPDF生成失败（已熔断停止重试），请检查字体/路径/权限配置。");
                 } else {
                     context.setFinalAnswer(context.getAnswerDraft() +
                             "\n\nPDF生成失败或未完成。");

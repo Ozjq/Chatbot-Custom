@@ -34,9 +34,16 @@ public class ReasoningEngine {
         }
 
         /**
-         * 第二阶段：如果需要 PDF，再生成 PDF
+         * 第二阶段：PDF 失败熔断（防止重复重试）
          */
-        if (context.isNeedPdf() && !context.isPdfReady()) {
+        if (context.isNeedPdf() && context.isPdfFailed()) {
+            return finish("PDF生成失败，触发熔断，结束流程");
+        }
+
+        /**
+         * 第三阶段：如果需要 PDF，且尚未成功且尚未尝试过，则生成 PDF
+         */
+        if (context.isNeedPdf() && !context.isPdfReady() && !context.isPdfTried()) {
             return AgentAction.builder()
                     .type(AgentAction.ActionType.CALL_TOOL)
                     .toolName("pdfGenerationTool")
@@ -46,7 +53,7 @@ public class ReasoningEngine {
         }
 
         /**
-         * 第三阶段：全部完成
+         * 第四阶段：全部完成
          */
         return finish("答案和附加任务均已完成");
     }
