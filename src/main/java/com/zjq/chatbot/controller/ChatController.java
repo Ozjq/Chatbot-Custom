@@ -10,6 +10,7 @@ import com.zjq.chatbot.service.ChatService;
 import com.zjq.chatbot.service.SessionService;
 import jakarta.annotation.Resource;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -50,6 +51,39 @@ public class ChatController {
     @GetMapping("/init")
     public List<SessionEntity> init() {
         return sessionService.listRecent(10);
+    }
+
+    @PostMapping("/reactChatV2")
+    public ChatResp reactChatV2(@RequestBody ChatReq req) {
+        Long sid = (req.sessionId() == null) ? sessionService.create() : req.sessionId();
+
+        MessageEntity message = MessageEntity.builder()
+                .content(req.message())
+                .sessionId(sid)
+                .role(MessageEntity.Role.user)
+                .createdAt(LocalDateTime.now())
+                .build();
+        chatService.insert(message);
+        sessionService.messageAppend(sid);
+
+        String answer = chatbot.reactChatV2(req.message(), String.valueOf(sid));
+
+        chatService.insert(MessageEntity.builder()
+                .sessionId(sid)
+                .role(MessageEntity.Role.system)
+                .content(answer)
+                .metaJson(null)
+                .createdAt(LocalDateTime.now())
+                .build());
+        sessionService.messageAppend(sid);
+
+        try {
+            chatSearchService.indexSession(sid);
+        } catch (Exception e) {
+            System.out.println("index ES failed");
+        }
+
+        return new ChatResp(answer, sid);
     }
 
     @PostMapping("/v1")

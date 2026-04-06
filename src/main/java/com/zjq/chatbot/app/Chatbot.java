@@ -1,7 +1,9 @@
 package com.zjq.chatbot.app;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zjq.chatbot.agent.AgentOrchestrator;
 import com.zjq.chatbot.chatmemory.FileBasedChatMemory;
+import com.zjq.chatbot.service.AiAbilityService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -23,76 +25,29 @@ import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvis
 @Slf4j
 @Component
 public class Chatbot {
-    private final ChatClient chatClient;
-    private static final String SYSTEM_PROMPT = "扮演智能客服机器人，回答用户问题";
-
-    private static final String REACT_PROMPT_TEMPLATE = """
-            你是一个严谨的任务执行助手。请按以下规则工作：
-            1) 如果问题仅靠常识可直接回答，则直接给出最终答案。
-            2) 如果问题需要外部信息或文件处理，请优先调用工具获取事实，再作答。
-            3) 每次调用工具后先阅读工具返回结果，再决定是否继续调用工具。
-            4) 最多进行 3 轮工具调用；若仍无法完成，明确说明限制并给出可执行建议。
-            5) 输出给用户时只给“最终答案”，不要暴露中间推理过程。
-
-            用户问题：
-            %s
-            """;
-
-    public Chatbot(@Qualifier("dashscopeChatModel") ChatModel dashScopeChatModel) {
-        //基于内存对话记忆
-        ChatMemory chatMemory = new InMemoryChatMemory();
-        //基于文件的ChatMemory
-        String fileDir = System.getProperty("user.dir")+"/tmp/chat-memory";
-        FileBasedChatMemory fileBasedChatMemory = new FileBasedChatMemory(fileDir);
-
-        chatClient = ChatClient.builder(dashScopeChatModel)
-                .defaultSystem(SYSTEM_PROMPT)
-                .defaultAdvisors(
-                    new MessageChatMemoryAdvisor(chatMemory)  //对话记忆功能，将其作为消息集合添加到提示词中
-                )
-                .build();
-    }
-
-    public String doChat(String message,String chatId){
-        ChatResponse response = chatClient.prompt()
-                .user(message)
-                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY,chatId)
-                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY,10))
-                .call()
-                .chatResponse();
-        String content = response.getResult().getOutput().getText();
-        return content;
-    }
 
     @Resource
-    VectorStore simpleVectorStore;
+    private ChatClient chatClient;
+
+    @Resource
+    private AiAbilityService aiAbilityService;
+
+    @Resource
+    private AgentOrchestrator agentOrchestrator;
+
+    public String doChat(String message, String sessionId) {
+        return aiAbilityService.doChat(message, sessionId);
+    }
 
     public String chatWithRag(String message, String sessionId) {
-        ChatResponse response = chatClient.prompt()
-                .user(message)
-                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY,sessionId)
-                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY,10))
-                .advisors(new QuestionAnswerAdvisor(simpleVectorStore)) //适用于 “我有知识库（向量化文档）＋我想要问答” 的场景
-                .call()
-                .chatResponse();
-        String content = response.getResult().getOutput().getText();
-        return content;
+        return aiAbilityService.chatWithRag(message, sessionId);
     }
-
-    @Resource
-    private ToolCallback[] allTools;
 
     public String reactChat(String message, String sessionId) {
-        String reactPrompt = REACT_PROMPT_TEMPLATE.formatted(message);
-        ChatResponse response = chatClient.prompt()
-                .user(reactPrompt)
-                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, sessionId)
-                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
-                .advisors(new QuestionAnswerAdvisor(simpleVectorStore))
-                .tools(allTools)
-                .call()
-                .chatResponse();
-        return response.getResult().getOutput().getText();
+        return aiAbilityService.reactToolChat(message, sessionId);
     }
 
+    public String reactChatV2(String message, String sessionId) {
+        return agentOrchestrator.run(message, sessionId).getFinalAnswer();
+    }
 }
