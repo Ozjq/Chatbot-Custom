@@ -50,4 +50,8 @@ public class Chatbot {
     public String reactChatV2(String message, String sessionId) {
         return agentOrchestrator.run(message, sessionId).getFinalAnswer();
     }
+
+//    public String chatWithMcp(String message, String sessionId) {
+//        return aiAbilityService.doChatWithMcp(message,sessionId);
+//    }
 }

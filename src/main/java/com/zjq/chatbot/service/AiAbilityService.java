@@ -5,6 +5,7 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.tool.ToolCallback;
+import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,9 @@ public class AiAbilityService {
 
     @Resource
     private ToolCallback[] allTools;
+//
+//    @Resource
+//    private ToolCallbackProvider toolCallbackProvider;
 
     public String doChat(String message, String sessionId) {
         ChatResponse response = chatClient.prompt()
@@ -55,4 +59,17 @@ public class AiAbilityService {
                 .chatResponse();
         return response.getResult().getOutput().getText();
     }
+
+//    public String doChatWithMcp(String message, String sessionId) {
+//        ChatResponse response = chatClient
+//                .prompt()
+//                .user(message)
+//                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, sessionId)
+//                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+//                .tools(toolCallbackProvider)
+//                .call()
+//                .chatResponse();
+//        String content = response.getResult().getOutput().getText();
+//        return content;
+//    }
 }

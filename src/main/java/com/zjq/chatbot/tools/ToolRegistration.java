@@ -1,10 +1,11 @@
-package com.zjq.chatbot.config;
+package com.zjq.chatbot.tools;
 
 import com.zjq.chatbot.tools.FileOperationTool;
 import com.zjq.chatbot.tools.PDFGenerationTool;
 import com.zjq.chatbot.tools.ResourceDownloadTool;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbacks;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -26,6 +27,9 @@ public class ToolRegistration {
         return new ResourceDownloadTool();
     }
 
+    @Value("${search-api.api-key}")
+    private String searchApiKey;
+
     /**
      * 只保留允许 LLM 自由调用的工具
      */
@@ -34,9 +38,19 @@ public class ToolRegistration {
             FileOperationTool fileOperationTool,
             ResourceDownloadTool resourceDownloadTool
     ) {
+        WebSearchTool webSearchTool = new WebSearchTool(searchApiKey);
+        WebScrapingTool webScrapingTool = new WebScrapingTool();
+        ImageSearchTool imageSearchTool = new ImageSearchTool();
+        TerminalOperationTool terminalOperationTool = new TerminalOperationTool();
+        TerminateTool terminateTool = new TerminateTool();
         return ToolCallbacks.from(
                 fileOperationTool,
-                resourceDownloadTool
+                resourceDownloadTool,
+                webSearchTool,
+                imageSearchTool,
+                webScrapingTool,
+                terminalOperationTool,
+                terminateTool
         );
     }
 }
