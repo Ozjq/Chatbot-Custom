@@ -43,15 +43,18 @@ public class PdfToolExecutor implements DirectToolExecutor {
     }
 
     /**
-     * 清理模型中无用描述
+     * 清理模型中无用描述及不支持的特殊字符
      */
     private String cleanContent(String content) {
         String cleaned = content;
 
-        // 删除“不能生成PDF”等误导语句
+        // 1. 删除“不能生成PDF”等误导语句
         cleaned = cleaned.replaceAll("(?s)❌ 关于生成PDF：.*", "");
         cleaned = cleaned.replaceAll("(?s)⚠️ 关于生成PDF：.*", "");
         cleaned = cleaned.replaceAll("(?s)是否需要我.*生成.*", "");
+
+        // 2. 移除所有非 BMP 字符（过滤掉 Emoji 等 iText UCS2 无法处理的字符）
+        cleaned = cleaned.replaceAll("[^\\u0000-\\uFFFF]", "");
 
         return cleaned.trim();
     }

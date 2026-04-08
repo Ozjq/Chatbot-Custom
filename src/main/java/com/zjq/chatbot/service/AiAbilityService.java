@@ -43,6 +43,7 @@ public class AiAbilityService {
                 .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, sessionId)
                         .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
                 .advisors(new QuestionAnswerAdvisor(simpleVectorStore))
+                .tools(allTools)
                 .call()
                 .chatResponse();
         return response.getResult().getOutput().getText();
