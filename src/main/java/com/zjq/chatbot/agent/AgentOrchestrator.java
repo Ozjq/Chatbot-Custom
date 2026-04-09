@@ -54,11 +54,17 @@ public class AgentOrchestrator {
                         }
                     }
                     case CALL_TOOL -> {
-                        if ("pdfGenerationTool".equals(action.getToolName())) {
+                        // 将条件放宽，包含你现在生成文件可能用到的工具名
+                        String toolName = action.getToolName();
+                        if ("pdfGenerationTool".equals(toolName)
+                                || "documentExportTool".equals(toolName)
+                                || "fileOperationTool".equals(toolName)) {
+
                             context.setPdfTried(true);
                             context.setPdfFailed(false);
                             if (StringUtils.hasText(observation.getContent())) {
                                 context.setPdfResult(observation.getContent());
+                                // 只要这些工具执行成功，就认为文档准备好了
                                 context.setPdfReady(true);
                             }
                         }
@@ -91,16 +97,16 @@ public class AgentOrchestrator {
 
     private void buildFinalAnswer(AgentContext context) {
         if (context.isAnswerReady()) {
-            if (context.isNeedPdf()) {
+            if (context.isNeedPdf()) { // 这里的 isNeedPdf 实际上现在代表 "是否需要导出文档"
                 if (context.isPdfReady()) {
                     context.setFinalAnswer(context.getAnswerDraft() +
-                            "\n\nPDF已生成：" + context.getPdfResult());
+                            "\n\n✅ 文档已成功导出至本地：" + context.getPdfResult());
                 } else if (context.isPdfFailed()) {
                     context.setFinalAnswer(context.getAnswerDraft() +
-                            "\n\nPDF生成失败（已熔断停止重试），请检查字体/路径/权限配置。");
+                            "\n\n❌ 文档导出失败（已熔断停止重试），请检查路径或权限配置。");
                 } else {
                     context.setFinalAnswer(context.getAnswerDraft() +
-                            "\n\nPDF生成失败或未完成。");
+                            "\n\n❌ 文档导出失败或未完成。");
                 }
             } else {
                 context.setFinalAnswer(context.getAnswerDraft());
@@ -114,9 +120,10 @@ public class AgentOrchestrator {
         return """
                 任务目标：%s
                 初始策略：
-                1. 先生成正文答案
-                2. 若用户要求 PDF，则基于正文生成 PDF
-                3. 所有任务完成后输出最终答案
+                1. 你的首要任务是**生成完整、详尽、高质量的正文答案**（必须包含完整的路线规划、步骤细节、景点介绍等）。绝对不能只回复“任务已完成”或“请查收文档”等敷衍的提示语，必须将实质性的完整指南内容作为你的直接输出！
+                2. ⚠️ 强烈警告：如果用户需要看图片，【绝对禁止】使用 imgur、unsplash 等捏造的假链接！你必须且只能调用 `imageSearchTool` 工具获取真实的图片 URL，并将图片使用 Markdown 语法 `![图片描述](真实URL)` 穿插在你生成的长文指南中。
+                3. 若用户要求导出、生成文件(如PDF/MD/HTML)，你**无需理会**，绝对不要在回答中提及任何转换、导出的教程或说明。我们的系统会自动在后台提取你输出的这篇“完整正文”并导出为文件。
+                4. 总结：你现在的唯一职责，就是输出一篇**完整排版、图文并茂的 Markdown 长篇游记/指南**。
                 """.formatted(userInput);
     }
 }

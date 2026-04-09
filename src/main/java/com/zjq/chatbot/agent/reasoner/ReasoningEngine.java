@@ -46,9 +46,9 @@ public class ReasoningEngine {
         if (context.isNeedPdf() && !context.isPdfReady() && !context.isPdfTried()) {
             return AgentAction.builder()
                     .type(AgentAction.ActionType.CALL_TOOL)
-                    .toolName("pdfGenerationTool")
+                    .toolName("documentExportTool")
                     .toolInput(context.getAnswerDraft())
-                    .reason("正文答案已准备完成，开始生成 PDF")
+                    .reason("正文答案已准备完成，开始生成文档")
                     .build();
         }
 

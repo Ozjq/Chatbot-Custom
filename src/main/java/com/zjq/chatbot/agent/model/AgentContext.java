@@ -83,12 +83,15 @@ public class AgentContext {
                 .build();
     }
 
+    // 找到 hasPdfRequirement 方法并修改
     private static boolean hasPdfRequirement(String input) {
         if (input == null) {
             return false;
         }
         String text = input.toLowerCase();
-        return text.contains("pdf") || text.contains("生成pdf") || text.contains("导出pdf");
+        // 把触发关键词改为文件、导出、md、html 等
+        return text.contains("文件") || text.contains("导出") || text.contains("生成文档")
+                || text.contains("markdown") || text.contains("html");
     }
 
     public void nextRound() {
