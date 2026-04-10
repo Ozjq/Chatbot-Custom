@@ -34,3 +34,6 @@ server:
   port: 8123
   servlet:
     context-path: /api
+
+image:
+  api-key: ${image-api.api-key}
