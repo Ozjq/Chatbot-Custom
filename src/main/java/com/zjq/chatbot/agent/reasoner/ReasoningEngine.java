@@ -19,7 +19,7 @@ public class ReasoningEngine {
          * 第一阶段：先产出答案正文
          */
         if (!context.isAnswerReady()) {
-            if (containsAny(userInput, "知识库", "文档", "资料", "杭电", "项目内容", "根据文档", "根据资料")) {
+            if (containsAny(userInput, "知识库", "文档", "资料", "项目内容", "根据文档", "根据资料")) {
                 return AgentAction.builder()
                         .type(AgentAction.ActionType.RAG_SEARCH)
                         .reason("先通过知识库或上下文生成正文答案")
